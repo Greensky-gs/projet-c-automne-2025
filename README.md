@@ -18,5 +18,5 @@ Il s'agit de simuler un **gestionnaire de fichiers** en C
 
 ### Procédé
 
-1. Clonez le code `git clone https://github.com/Greensky-gs/projet-c-automone-2025`
+1. Clonez le code `git clone https://github.com/Greensky-gs/projet-c-automone-2025`, ou téléchargez le contenu d'une `version` dans la [section des versions](https://github.com/Greensky-gs/projet-c-automne-2025/releases)
 2. Lancez la commande (sur le dossier cloné) : `make -f makefileNUMERO`, en remplaçant **NUMERO** par `1`, `2`, `3` ou `4` pour avoir l'une des quatres versions demandées du projet (en cours de développement)
