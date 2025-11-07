@@ -1,13 +1,20 @@
 CC=gcc
 FLAGS=-Wall
-output=main
+output=gerer_sf_v1
+deps=bloc.o inode.o
 RM=rm -f
+HREF=fourni/V1/bloc.h fourni/V1/inode.h
 
-$(output): $(output).o
-	$(CC) $(FLAGS) main.o -o main.exe
+$(output): $(output).o $(deps)
+	$(CC) $(FLAGS) $(output).o $(deps) -o $(output).exe
 
-main.o:
-	$(CC) $(FLAGS) -c main.c
+$(output).o: $(output).c $(HREF)
+	$(CC) $(FLAGS) -c $(output).c
+
+bloc.o: fourni/V1/bloc.c fourni/V1/bloc.h
+	$(CC) $(FLAGS) -c fourni/V1/bloc.c
+inode.o: fourni/V1/inode.c fourni/V1/inode.h
+	$(CC) $(FLAGS) -c fourni/V1/inode.c
 
 clean:
 	$(RM) *.o *.exe
