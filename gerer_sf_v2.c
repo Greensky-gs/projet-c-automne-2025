@@ -4,6 +4,15 @@
 #include "fourni/V2/sf.h"
 
 int main() {
-    printf("Hello world\n");
+    tSF syst = CreerSF("ssd");
+
+    AfficherSF(syst);
+
+    Ecrire1BlocFichierSF(syst, "test.txt", ORDINAIRE);
+
+    AfficherSF(syst);
+
+    DetruireSF(&syst);
+
     return 0;
 }

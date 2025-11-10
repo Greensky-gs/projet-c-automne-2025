@@ -18,7 +18,7 @@
 struct sSuperBloc
 {
 	// Le nom du disque (ou du système de fichiers) (avec le '\0')
-	char nomDisque[TAILLE_NOM_DISQUE+1];
+	char nomDisque[TAILLE_NOM_DISQUE + 1];
 	// La date de dernière modification du système de fichiers
 	time_t dateDerModif;
 };
@@ -68,7 +68,7 @@ static tSuperBloc CreerSuperBloc(char nomDisque[]) {
 
 	// Compteur pour copie du nom du disque
 	int i = 0;
-	while (i < TAILLE_NOM_DISQUE) {
+	while (i < TAILLE_NOM_DISQUE && nomDisque[i] != '\0') {
 		ptr->nomDisque[i] = nomDisque[i];
 		i++;
 	}
@@ -134,6 +134,24 @@ tSF CreerSF (char nomDisque[]){
 */
 void DetruireSF(tSF *pSF) {
 	DetruireSuperBloc(&(*pSF)->superBloc);
+
+	if ((*pSF)->listeInodes.nbInodes > 0) {
+		struct sListeInodesElement ** suivant = &(*pSF)->listeInodes.premier;
+		struct sListeInodesElement * temp = NULL;
+
+		while (*suivant != NULL) {
+  			DetruireInode(&((*suivant)->inode));
+			temp = (*suivant)->suivant;
+			free(*suivant);
+
+			if (temp == NULL) {
+				*suivant = NULL;
+			} else {
+				suivant = &temp;
+			}
+		}
+	}
+
 	free(*pSF);
 	*pSF = NULL;
 }
@@ -145,7 +163,29 @@ void DetruireSF(tSF *pSF) {
 * Sortie : aucune
 */
 void AfficherSF (tSF sf){
-	// A COMPLETER
+	printf("===========[SF %s]===========\nSuper bloc :\n", sf->superBloc->nomDisque);
+
+	AfficherSuperBloc(sf->superBloc);
+
+	if (sf->listeInodes.nbInodes > 0) {
+		if (sf->listeInodes.premier == NULL) {
+			perror("AfficherSF : Erreur avec SF car premier element non defini");
+			return;
+		}
+
+		int i = 0;
+		struct sListeInodesElement * suivant = (sf->listeInodes.premier);
+		while (suivant != NULL) {
+			printf("-------------[Inode %d]-------------\n", i);
+			AfficherInode(suivant->inode);
+	
+			suivant = suivant->suivant;
+		}
+	} else {
+		printf("Aucun inode\n");
+	}
+
+	printf("================================\n");
 }
 
 /* V2
@@ -154,5 +194,50 @@ void AfficherSF (tSF sf){
 * Sortie : le nombre d'octets effectivement écrits, -1 en cas d'erreur.
 */
 long Ecrire1BlocFichierSF(tSF sf, char nomFichier[], natureFichier type) {
-	// A COMPLETER
+	tInode inode = CreerInode(sf->listeInodes.nbInodes, type);
+	if (inode == NULL) {
+		perror("Ecrire1BlocFichierSF : Erreur creation");
+		return -1;
+	}
+	
+	FILE * fichier = fopen(nomFichier, "rb");
+	if (fichier == NULL) {
+		DetruireInode(&inode);
+		perror("Ecrire1BlocFichierSF : Erreur acces fichier");
+		return -1;
+	}
+
+	unsigned char contenu[TAILLE_BLOC + 1] = {0};
+	size_t resultatLecture = fread(contenu, 1, TAILLE_BLOC, fichier);
+	if (resultatLecture == 0 && ferror(fichier)) {
+		perror("Ecrire1BlocFichierSF : Erreur lecture fichier. Abandon.");
+		DetruireInode(&inode);
+		fclose(fichier);
+		return -1;
+	}
+
+	long ecrits = EcrireDonneesInode1bloc(inode, contenu, resultatLecture);
+	sf->listeInodes.nbInodes++;
+
+	struct sListeInodesElement * ptr = malloc(sizeof(struct sListeInodesElement));
+	if (ptr == NULL) {
+		perror("Ecrire1BlocFichierSF : Erreur creation element liste chainee");
+		DetruireInode(&inode);
+		fclose(fichier);
+		return -1;
+	}
+	ptr->inode = inode;
+	ptr->suivant = NULL;
+
+	if (sf->listeInodes.premier == NULL) {
+		sf->listeInodes.premier = ptr;
+		sf->listeInodes.dernier = sf->listeInodes.premier;
+	} else {
+		sf->listeInodes.dernier->suivant = ptr;
+		sf->listeInodes.dernier = ptr;
+	}
+
+	fclose(fichier);
+
+	return ecrits;
 }
