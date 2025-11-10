@@ -10,6 +10,7 @@
 
 // Taille d’un bloc en octets
 #define TAILLE_BLOC        64
+#define TAILLE_TAILLE_BLOC 2
 
 // Type public représentant un bloc de données
 typedef unsigned char *tBloc;
