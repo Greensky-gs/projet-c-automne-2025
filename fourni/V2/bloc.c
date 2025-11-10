@@ -16,7 +16,7 @@
 */
 tBloc CreerBloc (void) {
 	// Allocation de TAILLE_BLOC octets
-	tBloc ref = malloc(TAILLE_BLOC);
+	tBloc ref = calloc(sizeof(unsigned char), TAILLE_BLOC); // On utilise calloc pour avoir des bits initialisés à 0, c'est mieux
 	if (ref == NULL) {
 		// Erreur dans stderr
 		fprintf(stderr, "CreerBloc : probleme creation");
