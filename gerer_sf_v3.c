@@ -5,14 +5,24 @@
 #include "fourni/V3/sf.h"
 
 int main() {
-// int testEcritureLongue() {
+// int testAffichageInodeVide() {
     tInode inode = CreerInode(0, ORDINAIRE);
-
-    EcrireDonneesInode(inode, "Avec un texte relativement long, on doit pouvoir depasser facilement la limitation de 64 characteres pour un bloc.", 114, 0);
 
     AfficherInode(inode);
 
-    EcrireDonneesInode(inode, "j'ai ecrase un bout de tout ca", 30, 5);
+    DetruireInode(&inode);
+    return 0;
+}
+
+// int main() {
+int testEcritureLongue() {
+    tInode inode = CreerInode(0, ORDINAIRE);
+
+    EcrireDonneesInode(inode, (unsigned char *)"Avec un texte relativement long, on doit pouvoir depasser facilement la limitation de 64 characteres pour un bloc.", 114, 0);
+
+    AfficherInode(inode);
+
+    EcrireDonneesInode(inode, (unsigned char *)"j'ai ecrase un bout de tout ca", 30, 5);
 
     AfficherInode(inode);
 
@@ -21,6 +31,7 @@ int main() {
 
     fclose(output);
     DetruireInode(&inode);
+    return 0;
 }
 
 // int main() {
@@ -46,6 +57,7 @@ int testLectureLongue() {
 
     free(content);
     DetruireInode(&inode);
+    return 0;
 }
 
 // int main() {
@@ -72,6 +84,7 @@ int testChargeEtSauvegardeEtAffichage() {
     DetruireInode(&inode);
 
     free(gabarit);
+    return 0;
 }
 
 // int main() {
