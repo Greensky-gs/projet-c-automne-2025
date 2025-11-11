@@ -5,7 +5,34 @@
 #include "fourni/V3/sf.h"
 
 int main() {
-// int testEcrireSF() {
+// int testChargerSF() {
+    tSF sf = CreerSF("ssd minuscule");
+
+    ChargerSF(&sf, "SSD.sf.txt");
+
+    AfficherSF(sf);
+
+    DetruireSF(&sf);
+    return 0;
+}
+
+// int main() {
+int testSauvegarderSF() {
+    tSF sf = CreerSF("SSD");
+
+    EcrireFichierSF(sf, "LICENSE", ORDINAIRE);
+    EcrireFichierSF(sf, "README.md", ORDINAIRE);
+
+    AfficherSF(sf);
+
+    SauvegarderSF(sf, "SSD.sf.txt");
+
+    DetruireSF(&sf);
+    return 0;
+}
+
+// int main() {
+int testEcrireSF() {
     tSF sf = CreerSF("SSD");
 
     AfficherSF(sf);
