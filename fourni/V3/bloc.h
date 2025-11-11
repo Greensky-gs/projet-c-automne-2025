@@ -12,6 +12,7 @@
 
 // Taille d’un bloc en octets
 #define TAILLE_BLOC        64
+#define TAILLE_TAILLE_BLOC 2
 
 // Type public représentant un bloc de données
 typedef unsigned char *tBloc;
@@ -59,5 +60,11 @@ extern int SauvegarderBloc(tBloc bloc, long taille, FILE *fichier);
 * Retour : 0 en cas de succès, -1 en cas d'erreur
 */
 extern int ChargerBloc(tBloc bloc, long taille, FILE *fichier);
+
+/*
+    Fonction personnalisée qui permet de créer le gabarit de l'affichage d'un bloc
+    Retourne un pointeur vers le susdit gabarit, qu'il faut libérer avec free (alloué par calloc)
+*/
+extern char * creerGabarit(void);
 
 #endif
