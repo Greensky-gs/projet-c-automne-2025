@@ -351,9 +351,9 @@ int ChargerInode(tInode *pInode, FILE *fichier) {
 	}
 	
 	int i = 0;
-	while (i < NB_BLOCS_DIRECTS) {
+	while (i < NB_BLOCS_DIRECTS && i * TAILLE_BLOC < (*pInode)->taille) {
 		// On charge chaque bloc
-		int res = ChargerBloc((*pInode)->blocDonnees[i], TAILLE_BLOC, fichier);
+		int res = ChargerBloc((*pInode)->blocDonnees[i], (*pInode)->taille - (i * TAILLE_BLOC), fichier);
 		if (res == -1) {
 			perror("ChargerInode : Erreur chargement blocs");
 			return -1;
