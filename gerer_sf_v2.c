@@ -12,6 +12,10 @@ int main() {
 
     AfficherSF(syst);
 
+    Ecrire1BlocFichierSF(syst, "gerer_sf_v1.c", ORDINAIRE);
+
+    AfficherSF(syst);
+
     DetruireSF(&syst);
 
     return 0;
