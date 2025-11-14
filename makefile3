@@ -35,7 +35,7 @@ bloc.o: fourni/$(VERSION)/bloc.c fourni/$(VERSION)/bloc.h
 inode.o: fourni/$(VERSION)/inode.c fourni/$(VERSION)/inode.h
 	$(CC) $(FLAGS) $(SANITIZERS) -c fourni/$(VERSION)/inode.c
 sf.o: fourni/$(VERSION)/sf.c fourni/$(VERSION)/sf.h
-	$(CC) $(GLAGS) $(SANITIZERS) -c fourni/$(VERSION)/sf.c
+	$(CC) $(FLAGS) $(SANITIZERS) -c fourni/$(VERSION)/sf.c
 
 clean:
 	$(RM) *.o *.exe
