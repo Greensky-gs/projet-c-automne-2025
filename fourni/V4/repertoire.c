@@ -181,7 +181,7 @@ int LireRepertoireDepuisInode(tRepertoire *pRep, tInode inode) {
 * Sortie : 0 si le répertoire est écrit avec succès, -1 en cas d'erreur
 */
 int EcrireRepertoireDansInode(tRepertoire rep, tInode inode) {
-	// On va écrire les informations sous cette forme : numInode.nomFichier\0, on ne peut pas mettre les deux tout à fait à côté alors on les sépare avec un caractère (qui peut être n'importe lequel sauf un chiffre [0-9])
+	// On va écrire les informations sous cette forme : numInode.nomFichier\n, on ne peut pas mettre les deux tout à fait à côté alors on les sépare avec un caractère (qui peut être n'importe lequel sauf un chiffre [0-9]) On assume également que le nom du fichier ne contient pas de retour à la ligne (ce qui est une condition réaliste)
 
 	// Essayons d'être précis
 	unsigned char * buffer = malloc(TAILLE_NOM_FICHIER + 1 + TAILLE_MAXIMALE_NUM_INODES + 1); // Les deux 1 sont pour le point et le \0
@@ -189,7 +189,7 @@ int EcrireRepertoireDansInode(tRepertoire rep, tInode inode) {
 	long ecrits = 0;
 	int indice = 0;
 	while (rep->table[indice]->nomEntree[0] != '\0' && indice < tailleEntreesTab()) {
-		sprintf(buffer, "%d.%s\0", rep->table[indice]->numeroInode, rep->table[indice]->nomEntree);
+		sprintf((char *)buffer, "%d.%s\n", rep->table[indice]->numeroInode, rep->table[indice]->nomEntree);
 		int taille = tailleStr(buffer) + 1;
 
 		int res = EcrireDonneesInode(inode, buffer, taille, ecrits);
@@ -200,6 +200,8 @@ int EcrireRepertoireDansInode(tRepertoire rep, tInode inode) {
 		ecrits+=res;
 		indice++;
 	}
+
+	free(buffer);
 
 	return 0;
 }

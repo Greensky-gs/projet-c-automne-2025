@@ -1,6 +1,8 @@
 #include "fourni/V4/repertoire.h"
 #include <stdio.h>
 
+#define ADD(x, y) x + y
+
 int main() {
 // int testAffichage() {
     tRepertoire rep = CreerRepertoire();
