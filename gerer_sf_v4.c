@@ -44,6 +44,7 @@ int main() {
 
 
     // Test de lecture
+    printf("\x1b[34m--- Test de lecture ---\x1b[0m\n");
 
     FILE * load = fopen("inode-rep.inode.txt", "rb");
 
@@ -58,6 +59,7 @@ int main() {
 
     DetruireInode(&inode2);
     DetruireRepertoire(&rep2);
-    
+
+    fclose(load);
     return 0;
 }

@@ -157,7 +157,7 @@ int EcrireEntreeRepertoire(tRepertoire rep, char nomEntree[], unsigned int numer
 	return 0;
 }
 
-static int tailleStr(char * str) {
+static int tailleStr(unsigned char * str) {
 	int c = 0;
 	while (str[c] != '\0') {
 		c++;
@@ -195,6 +195,7 @@ int LireRepertoireDepuisInode(tRepertoire *pRep, tInode inode) {
 	int indice = 0;
 
 	while (indice < lus) {
+		int avant = indice;
 		scanf((char *)(buffer + indice), "%d.", &((*pRep)->table[indice]->numeroInode));
 		indice += log10int((*pRep)->table[indice]->numeroInode) + 1; // Le +1 est pour passer le point
 		int i = 0;
@@ -207,6 +208,8 @@ int LireRepertoireDepuisInode(tRepertoire *pRep, tInode inode) {
 
 		(*pRep)->table[indice]->nomEntree[i] = '\0';
 		indice++; // Pour passer le \n
+
+		printf("Indice initial : %d      Indice final : %d      Nom entree : %s      Num inode : %d\n", avant, indice, (*pRep)->table[indice]->nomEntree, (*pRep)->table[indice]->numeroInode);
 	}
 
 	free(buffer);
