@@ -65,8 +65,9 @@ tInode CreerInode(int numInode, natureFichier type) {
 */
 void DetruireInode(tInode *pInode) {
 	// D'abord détruire les NB_BLOCS_DIRECTS
-	while ((*pInode)-> taille > 0) {
-		DetruireBloc(&((*pInode)->blocDonnees[(*pInode)->taille / TAILLE_BLOC]));
+	int indice = 0;
+	while (indice * TAILLE_BLOC < (*pInode)-> taille) {
+		DetruireBloc(&((*pInode)->blocDonnees[indice]));
 		(*pInode)-> taille -= TAILLE_BLOC;
 	}
 	// Libération et pointage sur NULL
