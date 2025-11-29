@@ -55,8 +55,10 @@ tInode CreerInode(int numInode, natureFichier type) {
 	time(&(iNode->dateDerModif));
 	time(&(iNode->dateDerModifInode));
 
-	// On n'initialise pas les blocs car on va les allouer à la volée
-
+	// On initialise les blocs à NULL
+	for (int i = 0; i < NB_BLOCS_DIRECTS; i++) {
+		(iNode->blocDonnees)[i] = NULL;
+	}
 	return iNode;
 }
 

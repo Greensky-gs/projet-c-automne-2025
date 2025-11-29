@@ -5,7 +5,23 @@
 #include "fourni/V3/sf.h"
 
 int main() {
-// int testChargerSF() {
+// int testGlobal() {
+    tInode inode = CreerInode(0, ORDINAIRE);
+    EcrireDonneesInode(inode, (unsigned char *)"Ceci est un test de l'ecriture et de la lecture dans un inode. On va faire un truc un peu plus long quand meme", 110, 0);
+
+    unsigned char content[111] = {0};
+    LireDonneesInode(inode, content, 110, 0);
+
+    printf("Contenu = %s\n", content);
+
+    FILE * output = fopen("output.inode.txt", "wb");
+    SauvegarderInode(inode, output);
+
+    fclose(output);
+}
+
+// int main() {
+int testChargerSF() {
     tSF sf = CreerSF("ssd minuscule");
 
     ChargerSF(&sf, "SSD.sf.txt");

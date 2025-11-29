@@ -50,7 +50,10 @@ tInode CreerInode(int numInode, natureFichier type) {
 	time(&(iNode->dateDerModif));
 	time(&(iNode->dateDerModifInode));
 
-	// On n'initialise pas les blocs car on va les allouer à la volée
+	// On initialise les blocs à NULL
+	for (int i = 0; i < NB_BLOCS_DIRECTS; i++) {
+		(iNode->blocDonnees)[i] = NULL;
+	}
 
 	return iNode;
 }
@@ -155,32 +158,14 @@ void AfficherInode(tInode inode) {
 	time_t derAccess = DateDerAcces(inode);
 	time_t derModifFichier = DateDerModifFichier(inode);
 	time_t derModifInode = DateDerModif(inode);
-	long taille = Taille(inode);
 
 	natureFichier type = Type(inode);
 	char * typeText = type == ORDINAIRE ? "Ordinaire" : type == REPERTOIRE ? "Repertoire" : type == AUTRE ? "Autre" : "never";
+	unsigned char chaine[TAILLE_BLOC + 1] = {0};
+	long lus = LireDonneesInode1bloc(inode, chaine, TAILLE_BLOC);
+	chaine[lus] = '\0';
 
-	unsigned char * contenuTotal = malloc(NB_BLOCS_DIRECTS * TAILLE_BLOC + 1);
-	contenuTotal[NB_BLOCS_DIRECTS * TAILLE_BLOC] = '\0';
-
-	int i = 0;
-	while (i < NB_BLOCS_DIRECTS && i * TAILLE_BLOC < taille) {
-		LireContenuBloc(inode->blocDonnees[i], &contenuTotal[i * TAILLE_BLOC], TAILLE_BLOC);
-		i++;
-	}
-	contenuTotal[i * TAILLE_BLOC] = '\0';
-
-	// Joli affichage sous forme d'objet javascript (sans couleur mais ça pourrait)
-	// Je rapelle que j'ai choisit de ne pas remplacer le dernier caractère par \0 dans Ecrire1BlocFichierSF car j'ai choisit d'avoir le fichier continu de manière discontinue (si il est sur plusieurs blocs, il ne doit pas être interrompu par des \0), donc on s'adapte dans l'affichage et dans l'utilisation (ici contenuTotal est forcément nul-terminé grâce à la ligne du dessus, donc on peut l'afficher sans déclencher de stack-buffer-overflow)
-	printf("{\n    numero: %d\n    type: %d (%s)\n    taille: %ld\n    dernier access: %s\n    derniere modif. fichier: %s\n    derniere modif. inode: %s", Numero(inode), type, typeText, taille, ctime(&derAccess), ctime(&derModifFichier), ctime(&derModifInode));
-
-	if (inode->taille == 0) {
-		printf("\n    L'inode est vide\n}\n");
-	} else {
-		printf("\n    contenu:\n%s\n}\n", contenuTotal);
-	}
-
-	free(contenuTotal);
+	printf("----------Inode [%d]----\n    Type : %s\n    Taille : %ld octets\n    Date de dernier access : %s    Date de derniere modification inode : %s    Date de derniere modificataion fichier : %s    Contenu :\n%s\n    Octets lus : %ld\n--------------------\n", inode->numero, typeText, inode->taille, ctime(&derAccess), ctime(&derModifInode), ctime(&derModifFichier), chaine, lus);
 }
 
 /* V1
@@ -237,7 +222,8 @@ long LireDonneesInode(tInode inode, unsigned char * contenu, long taille, long d
 	int c = decalage % TAILLE_BLOC; // On initialise l'indice du caractère du bloc par le reste de decalage par bloc : decalage si decalage < 64n decalage - 64 si decalage < 128 ...
 	int index = 0; // La variable est redondante, on pourrait remplacer ses occurences par i * TAILLE_BLOC + c, mais il faudrait rajouter des cycles de calcul lors de l'exécution, on va la laisser pour "l'optimisation"
 
-	while (index < taille && index < TAILLE_BLOC * NB_BLOCS_DIRECTS) {
+	// En principe on ne peut pas taper dans de la mémoire non-initialisée
+	while (index < taille && index < TAILLE_BLOC * NB_BLOCS_DIRECTS && index < inode->taille) {
 		unsigned char car = inode->blocDonnees[i][c];
 
 		contenu[index] = car;
@@ -260,12 +246,19 @@ long LireDonneesInode(tInode inode, unsigned char * contenu, long taille, long d
 * Sortie : le nombre d'octets effectivement écrits, ou -1 en cas d'erreur
 */
 long EcrireDonneesInode(tInode inode, unsigned char *contenu, long taille, long decalage) {
-	// Bon, mêmes commentaires que LireDonneesInode, c'est essnetiellement le même algorithme
+	// Bon, mêmes commentaires que LireDonneesInode, c'est essentiellement le même algorithme
 	int i = decalage / TAILLE_BLOC;
 	int c = decalage % TAILLE_BLOC;
 	int index = 0;
 
 	while (index < taille && index < TAILLE_BLOC * NB_BLOCS_DIRECTS) {
+		if (inode->blocDonnees[i] == NULL) {
+			inode->blocDonnees[i] = CreerBloc();
+			if (inode->blocDonnees[i] == NULL) {
+				perror("EcrireDonneesInode : Erreur allocation bloc");
+				return -1; // Erreur d'allocation
+			}
+		}
 		inode->blocDonnees[i][c] = contenu[index];
 
 		c++;
@@ -323,15 +316,15 @@ int SauvegarderInode(tInode inode, FILE * fichier) {
 	// C'est toutes les données qu'on peut représenter ligne par ligne sans avoir à se soucier du fait qu'on pourrait avoir un retour à la ligne à cause du contenu
 
 	// Enregistrement des blocs
-	int i = 0;
-	while (i < NB_BLOCS_DIRECTS) {
-		tBloc bloc = inode->blocDonnees[i];
+	int taille = inode->taille;
+	while (taille > TAILLE_BLOC) {
+		tBloc bloc = inode->blocDonnees[taille / TAILLE_BLOC];
 		int res = SauvegarderBloc(bloc, TAILLE_BLOC, fichier);
 		if (res == -1) {
 			perror("SauvegarderInode : Erreur enregistrement blocs");
 			return -1;
 		}
-		i++;
+		taille -= TAILLE_BLOC;
 	}
 
 	return 0;
@@ -355,6 +348,13 @@ int ChargerInode(tInode *pInode, FILE *fichier) {
 	int i = 0;
 	while (i < NB_BLOCS_DIRECTS && i * TAILLE_BLOC < (*pInode)->taille) {
 		// On charge chaque bloc
+		if ((*pInode)->blocDonnees[i] == NULL) {
+			(*pInode)->blocDonnees[i] = CreerBloc();
+			if ((*pInode)->blocDonnees[i] == NULL) {
+				perror("ChargerInode : Erreur allocation bloc");
+				return -1;
+			}
+		}
 		int res = ChargerBloc((*pInode)->blocDonnees[i], (*pInode)->taille - (i * TAILLE_BLOC), fichier);
 		if (res == -1) {
 			perror("ChargerInode : Erreur chargement blocs");
