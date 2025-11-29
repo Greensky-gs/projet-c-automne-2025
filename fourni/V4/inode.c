@@ -246,12 +246,19 @@ long LireDonneesInode(tInode inode, unsigned char * contenu, long taille, long d
 * Sortie : le nombre d'octets effectivement écrits, ou -1 en cas d'erreur
 */
 long EcrireDonneesInode(tInode inode, unsigned char *contenu, long taille, long decalage) {
-	// Bon, mêmes commentaires que LireDonneesInode, c'est essnetiellement le même algorithme
+	// Bon, mêmes commentaires que LireDonneesInode, c'est essentiellement le même algorithme
 	int i = decalage / TAILLE_BLOC;
 	int c = decalage % TAILLE_BLOC;
 	int index = 0;
 
 	while (index < taille && index < TAILLE_BLOC * NB_BLOCS_DIRECTS) {
+		if (inode->blocDonnees[i] == NULL) {
+			inode->blocDonnees[i] = CreerBloc();
+			if (inode->blocDonnees[i] == NULL) {
+				perror("EcrireDonneesInode : Erreur allocation bloc");
+				return -1; // Erreur d'allocation
+			}
+		}
 		inode->blocDonnees[i][c] = contenu[index];
 
 		c++;
