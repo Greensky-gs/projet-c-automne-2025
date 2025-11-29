@@ -41,5 +41,23 @@ int main() {
 
     DetruireInode(&inode);
     DetruireRepertoire(&rep);
+
+
+    // Test de lecture
+
+    FILE * load = fopen("inode-rep.inode.txt", "rb");
+
+    tInode inode2 = CreerInode(-1, REPERTOIRE);
+    ChargerInode(&inode2, load);
+
+    tRepertoire rep2 = CreerRepertoire();
+
+    LireRepertoireDepuisInode(&rep2, inode2);
+
+    AfficherRepertoire(rep2);
+
+    DetruireInode(&inode2);
+    DetruireRepertoire(&rep2);
+    
     return 0;
 }

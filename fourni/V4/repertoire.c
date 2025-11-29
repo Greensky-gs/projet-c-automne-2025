@@ -164,6 +164,16 @@ static int tailleStr(char * str) {
 	}
 	return c;
 }
+static int log10int(int n) {
+	if (n <= 0) return -1;
+	// n > 0
+	int c = 0;
+	while (n >= 10) {
+		n = n / 10;
+		c++;
+	}
+	return c;
+}
 
 /* V4
 * Lit le contenu d'un répertoire depuis un inode.
@@ -172,7 +182,35 @@ static int tailleStr(char * str) {
 * Retour : 0 si le répertoire est lu avec succès, -1 en cas d'erreur
 */
 int LireRepertoireDepuisInode(tRepertoire *pRep, tInode inode) {
-	
+	// Même étapes que EcrireRepertoireDansInode mais en sens inverse
+	if (Taille(inode) == 0) return 0; // Le répertoire est techniquement vide, donc pas d'erreur
+
+	unsigned char * buffer = calloc(1, Taille(inode) + 1);
+	if (buffer == NULL) {
+		perror("LireRepertoireDepuisInode : Erreur allocation");
+		return -1;
+	}
+
+	long lus = LireDonneesInode(inode, buffer, Taille(inode), 0);
+	int indice = 0;
+
+	while (indice < lus) {
+		scanf((char *)(buffer + indice), "%d.", &((*pRep)->table[indice]->numeroInode));
+		indice += log10int((*pRep)->table[indice]->numeroInode) + 1; // Le +1 est pour passer le point
+		int i = 0;
+
+		while (buffer[indice] != '\n' && indice < lus) {
+			(*pRep)->table[indice]->nomEntree[i] = buffer[indice];
+			i++;
+			indice++;
+		}
+
+		(*pRep)->table[indice]->nomEntree[i] = '\0';
+		indice++; // Pour passer le \n
+	}
+
+	free(buffer);
+	return 0;
 }
 
 /* V4
@@ -184,13 +222,13 @@ int EcrireRepertoireDansInode(tRepertoire rep, tInode inode) {
 	// On va écrire les informations sous cette forme : numInode.nomFichier\n, on ne peut pas mettre les deux tout à fait à côté alors on les sépare avec un caractère (qui peut être n'importe lequel sauf un chiffre [0-9]) On assume également que le nom du fichier ne contient pas de retour à la ligne (ce qui est une condition réaliste)
 
 	// Essayons d'être précis
-	unsigned char * buffer = malloc(TAILLE_NOM_FICHIER + 1 + TAILLE_MAXIMALE_NUM_INODES + 1); // Les deux 1 sont pour le point et le \0
+	unsigned char * buffer = malloc(TAILLE_NOM_FICHIER + 1 + TAILLE_MAXIMALE_NUM_INODES + 1); // Les deux 1 sont pour le point et le \n
 	
 	long ecrits = 0;
 	int indice = 0;
 	while (rep->table[indice]->nomEntree[0] != '\0' && indice < tailleEntreesTab()) {
 		sprintf((char *)buffer, "%d.%s\n", rep->table[indice]->numeroInode, rep->table[indice]->nomEntree);
-		int taille = tailleStr(buffer) + 1;
+		int taille = tailleStr(buffer);
 
 		int res = EcrireDonneesInode(inode, buffer, taille, ecrits);
 		if (res == -1) {
