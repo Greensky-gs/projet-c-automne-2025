@@ -149,6 +149,7 @@ natureFichier Type(tInode inode) {
 	return inode->type;
 }
 
+
 /* V1 & V3
 * Affiche les informations d'un inode
 * Entrée : l'inode dont on souhaite afficher les informations
@@ -164,7 +165,7 @@ void AfficherInode(tInode inode) {
 	char * typeText = type == ORDINAIRE ? "Ordinaire" : type == REPERTOIRE ? "Repertoire" : type == AUTRE ? "Autre" : "never";
 
 	// Puisqu'on va allouer une chaine de la taille inode->taille + 1, on utilise un calloc plutôt qu'une VLA  (c'est bien hein)
-	unsigned char * chaine = calloc(inode->taille + 1, sizeof(unsigned char));
+	unsigned char * chaine = calloc(4 > inode->taille + 1 ? 4 : inode->taille + 1, sizeof(unsigned char));
 	if (chaine == NULL) {
 		perror("AfficherInode : erreur allocation");
 		return;
