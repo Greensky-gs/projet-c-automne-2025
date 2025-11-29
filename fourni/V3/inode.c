@@ -316,8 +316,9 @@ int SauvegarderInode(tInode inode, FILE * fichier) {
 	// C'est toutes les données qu'on peut représenter ligne par ligne sans avoir à se soucier du fait qu'on pourrait avoir un retour à la ligne à cause du contenu
 
 	// Enregistrement des blocs
-	int taille = inode->taille;
+	long taille = inode->taille;
 	while (taille > TAILLE_BLOC) {
+		printf("taille = %ld   taille/TAILLE_BLOC = %ld\n", taille, taille / TAILLE_BLOC);
 		tBloc bloc = inode->blocDonnees[taille / TAILLE_BLOC];
 		int res = SauvegarderBloc(bloc, TAILLE_BLOC, fichier);
 		if (res == -1) {
