@@ -129,7 +129,7 @@ tSF CreerSF (char nomDisque[]){
 	tInode inodeRep = CreerInode(0, REPERTOIRE); // Répertoire racine
 	if (inodeRep == NULL) {
 		perror("CreerSF : Erreur creation inode racine");
-		DetruireRepertoire(&inodeRep);
+		DetruireRepertoire(&rep);
 		DetruireSuperBloc(&superBloc);
 		free(syst);
 		return NULL;
@@ -580,4 +580,6 @@ int Ls(tSF sf, bool detail)  {
 			printf("%s\n", tabNumInodes[i].nomEntree);
 		}
 	}
+
+	return 0;
 }
