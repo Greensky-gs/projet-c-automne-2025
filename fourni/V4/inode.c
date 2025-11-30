@@ -374,23 +374,27 @@ int ChargerInode(tInode *pInode, FILE *fichier) {
 * Entrée : l'inode concerné,
 * Sortie : la taille du plus grand fichier de cet inode
 */
-long TailleMaxFichier(tInode inode) { // Le code contenant void au lieu de tInode inode
-	// On va admettre que les fichiers sont séparés par des \0 (pas terrible pour l'affichage)
-	int max = 0;
-	int indice = 0;
-	int courant = 0;
+// long TailleMaxFichier(tInode inode) { // Le code contenant void au lieu de tInode inode
+// 	// On va admettre que les fichiers sont séparés par des \0 (pas terrible pour l'affichage)
+// 	int max = 0;
+// 	int indice = 0;
+// 	int courant = 0;
 
-	while (indice < inode->taille) {
-		if (inode->blocDonnees[indice / TAILLE_BLOC][indice % TAILLE_BLOC] == '\0') {
-			if (courant > max) {
-				max = courant;
-			}
-			courant = 0;
-		} else {
-			courant++;
-		}
-		indice++;
-	}
+// 	while (indice < inode->taille) {
+// 		if (inode->blocDonnees[indice / TAILLE_BLOC][indice % TAILLE_BLOC] == '\0') {
+// 			if (courant > max) {
+// 				max = courant;
+// 			}
+// 			courant = 0;
+// 		} else {
+// 			courant++;
+// 		}
+// 		indice++;
+// 	}
 
-	return max;
+// 	return max;
+// }
+// Puisqu'on ne peut pas modifier les fichiers d'en-tête, je suis contraint de laisser la fonction telle que suit
+long TailleMaxFichier(void) {
+	return TAILLE_BLOC * NB_BLOCS_DIRECTS;
 }
