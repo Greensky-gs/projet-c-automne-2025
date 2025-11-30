@@ -99,6 +99,17 @@ static void AfficherSuperBloc(tSuperBloc superBloc) {
 	printf("{      Super Bloc\n    nom disque: %s\n    Dernière date de modification: %s\n}\n", superBloc->nomDisque, ctime(&superBloc->dateDerModif));
 }
 
+static struct sListeInodesElement * CreerElementListeInodes(tInode inode) {
+	struct sListeInodesElement * element = malloc(sizeof(struct sListeInodesElement));
+	if (element == NULL) {
+		fprintf(stderr, "CreerElementListeInodes : probleme creation\n");
+		return NULL;
+	}
+	element->inode = inode;
+	element->suivant = NULL;
+	return element;
+} 
+
 /* V2 & V4
 * Crée un nouveau système de fichiers.
 * Entrée : nom du disque à associer au système de fichiers créé
@@ -137,14 +148,21 @@ tSF CreerSF (char nomDisque[]){
 	EcrireRepertoireDansInode(rep, inodeRep);
 	// On détruit ensuite le répertoire, car on en pas besoin 
 	DetruireRepertoire(&rep);
+
+	struct sListeInodesElement * element = CreerElementListeInodes(inodeRep);
+	if (element == NULL) {
+		perror("CreerSF : Erreur creation element liste inodes");
+		DetruireInode(&inodeRep);
+		DetruireSuperBloc(&superBloc);
+		free(syst);
+		return NULL;
+	}
 	
 	// Initialisation avec des valeurs par défaut
 	syst->superBloc = superBloc;
 	syst->listeInodes.nbInodes = 1;
-	syst->listeInodes.dernier->inode = inodeRep;
-	syst->listeInodes.premier->inode = inodeRep;
-	syst->listeInodes.dernier->suivant = NULL;
-	syst->listeInodes.premier->suivant = NULL;
+	syst->listeInodes.premier = element;
+	syst->listeInodes.dernier = element;
 	
 	return syst;
 }
@@ -250,17 +268,14 @@ long Ecrire1BlocFichierSF(tSF sf, char nomFichier[], natureFichier type) {
 	long ecrits = EcrireDonneesInode1bloc(inode, contenu, resultatLecture); // Écriture dans contenu
 	sf->listeInodes.nbInodes++;
 	
-	struct sListeInodesElement * ptr = malloc(sizeof(struct sListeInodesElement)); // Allocation d'un nouvel élément de liste chainée (pourrait être factorisé en fonction statique, mais pour l'instant ce n'est ni nécessaire ni demandé)
+	struct sListeInodesElement * ptr = CreerElementListeInodes(inode);
 	if (ptr == NULL) {
-		perror("Ecrire1BlocFichierSF : Erreur creation element liste chainee");
+		perror("Ecrire1BlocFichierSF : Erreur creation element liste inodes");
 		DetruireInode(&inode);
 		fclose(fichier);
 		return -1;
 	}
-	
-	ptr->inode = inode;
-	ptr->suivant = NULL;
-	
+
 	if (sf->listeInodes.premier == NULL) { // On se place dans le cas où la liste n'a pas été initialisée
 		sf->listeInodes.premier = ptr;
 		sf->listeInodes.dernier = sf->listeInodes.premier;
