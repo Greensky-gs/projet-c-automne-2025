@@ -172,32 +172,30 @@ void DetruireSF(tSF *pSF) {
 * Sortie : aucune
 */
 void AfficherSF (tSF sf){
-	printf("===========[SF %s]===========\nSuper bloc :\n", sf->superBloc->nomDisque);
-	
 	// On affiche le super-bloc
 	AfficherSuperBloc(sf->superBloc);
-	
+
+	printf("Inodes :\n");
 	if (sf->listeInodes.nbInodes > 0) {
 		if (sf->listeInodes.premier == NULL) {
 			// Cette situation est supposée ne jamais arriver, mais si elle arrive on est mal, donc on vérifie
 			perror("AfficherSF : Erreur avec SF car premier element non defini");
 			return;
 		}
-		
+
 		int i = 0;
 		struct sListeInodesElement * suivant = (sf->listeInodes.premier);
 		while (suivant != NULL) { // Affichage itératif
-			printf("-------------[Inode %d]-------------\n", i);
 			AfficherInode(suivant->inode);
-			
+	
 			suivant = suivant->suivant;
 			i++;
 		}
 	} else {
 		printf("Aucun inode\n");
 	}
-	
-	printf("================================\n");
+
+	printf("---------------[ FIN SF ]---------------\n");
 }
 
 /* V2

@@ -98,7 +98,7 @@ static void DetruireSuperBloc(tSuperBloc *pSuperBloc) {
 * Sortie : aucune
 */
 static void AfficherSuperBloc(tSuperBloc superBloc) {
-	printf("{      Super Bloc\n    nom disque: %s\n    Dernière date de modification: %s\n}\n", superBloc->nomDisque, ctime(&superBloc->dateDerModif));
+	printf("Sf de nom %s, super bloc :\ntaille bloc = %d, date der modif: %s", superBloc->nomDisque, TAILLE_BLOC, ctime(&superBloc->dateDerModif));
 }
 
 /* V2
@@ -168,11 +168,10 @@ void DetruireSF(tSF *pSF) {
 * Sortie : aucune
 */
 void AfficherSF (tSF sf){
-	printf("===========[SF %s]===========\nSuper bloc :\n", sf->superBloc->nomDisque);
-
 	// On affiche le super-bloc
 	AfficherSuperBloc(sf->superBloc);
 
+	printf("Inodes :\n");
 	if (sf->listeInodes.nbInodes > 0) {
 		if (sf->listeInodes.premier == NULL) {
 			// Cette situation est supposée ne jamais arriver, mais si elle arrive on est mal, donc on vérifie
@@ -183,7 +182,6 @@ void AfficherSF (tSF sf){
 		int i = 0;
 		struct sListeInodesElement * suivant = (sf->listeInodes.premier);
 		while (suivant != NULL) { // Affichage itératif
-			printf("-------------[Inode %d]-------------\n", i);
 			AfficherInode(suivant->inode);
 	
 			suivant = suivant->suivant;
@@ -193,7 +191,7 @@ void AfficherSF (tSF sf){
 		printf("Aucun inode\n");
 	}
 
-	printf("================================\n");
+	printf("---------------[ FIN SF ]---------------\n");
 }
 
 /* V2

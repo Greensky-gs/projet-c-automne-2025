@@ -167,14 +167,14 @@ void AfficherInode(tInode inode) {
 	natureFichier type = Type(inode);
 	char * typeText = type == ORDINAIRE ? "Ordinaire" : type == REPERTOIRE ? "Repertoire" : type == AUTRE ? "Autre" : "never";
 	unsigned char chaine[TAILLE_BLOC + 1] = {0};
-	long lus = LireDonneesInode1bloc(inode, chaine, TAILLE_BLOC);
+	long lus = LireDonneesInode1bloc(inode, chaine, inode->taille);
 	chaine[lus] = '\0';
 
 	if (inode->taille == 0) {
 		sprintf((char *)chaine, "Vide");
 	}
 
-	printf("----------Inode [%d]----\n    Type : %s\n    Taille : %ld octets\n    Date de dernier access : %s    Date de derniere modification inode : %s    Date de derniere modification fichier : %s    Contenu :\n%s\n    Octets lus : %ld\n--------------------\n", inode->numero, typeText, inode->taille, ctime(&derAccess), ctime(&derModifInode), ctime(&derModifFichier), chaine, lus);
+	printf("----------Inode [%d]----------\n    Type : %s\n    Taille : %ld octets\n    Date de dernier access : %s    Date de derniere modification inode : %s    Date de derniere modification fichier : %s    Contenu :\n%s\n    Octets lus : %ld\n--------------------\n", inode->numero, typeText, inode->taille, ctime(&derAccess), ctime(&derModifInode), ctime(&derModifFichier), chaine, lus);
 }
 
 /* V1
