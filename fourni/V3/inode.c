@@ -287,7 +287,7 @@ long EcrireDonneesInode(tInode inode, unsigned char *contenu, long taille, long 
 		}
 		index++;
 
-		long nouvelleTaille = decalage + i * TAILLE_BLOC + c;
+		long nouvelleTaille = decalage + index;
 		if (ancienneTaille < nouvelleTaille) inode->taille = nouvelleTaille;
 	}
 
