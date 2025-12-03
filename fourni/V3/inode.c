@@ -208,6 +208,9 @@ long LireDonneesInode1bloc(tInode inode, unsigned char *contenu, long taille) {
 * Retour : le nombre d'octets effectivement lus dans l'inode ou -1 en cas d'erreur
 */
 long EcrireDonneesInode1bloc(tInode inode, unsigned char *contenu, long taille) {
+	ActualiserDateDerAccess(inode);
+	ActualiserDateDerModif(inode);
+	ActualiserDateDerModifInode(inode);
 	if (inode->taille == 0) {
 		// Les blocs n'ont tout simplement pas été initialisés
 		inode->blocDonnees[0] = CreerBloc();
@@ -234,6 +237,7 @@ long EcrireDonneesInode1bloc(tInode inode, unsigned char *contenu, long taille) 
 * Sortie : le nombre d'octets effectivement lus, 0 si le décalage est au-delà de la taille
 */
 long LireDonneesInode(tInode inode, unsigned char * contenu, long taille, long decalage) {
+	ActualiserDateDerAccess(inode);
 	int i = decalage / TAILLE_BLOC; // On initialise l'indice du bloc par le quotient de decalage par bloc : 0 si decalage < 64, 1 si decalage < 128 ...
 	int c = decalage % TAILLE_BLOC; // On initialise l'indice du caractère du bloc par le reste de decalage par bloc : decalage si decalage < 64n decalage - 64 si decalage < 128 ...
 	int index = 0; // La variable est redondante, on pourrait remplacer ses occurences par i * TAILLE_BLOC + c, mais il faudrait rajouter des cycles de calcul lors de l'exécution, on va la laisser pour "l'optimisation"
@@ -262,6 +266,9 @@ long LireDonneesInode(tInode inode, unsigned char * contenu, long taille, long d
 * Sortie : le nombre d'octets effectivement écrits, ou -1 en cas d'erreur
 */
 long EcrireDonneesInode(tInode inode, unsigned char *contenu, long taille, long decalage) {
+	ActualiserDateDerModif(inode);
+	ActualiserDateDerAccess(inode);
+	ActualiserDateDerModifInode(inode);
 	// Bon, mêmes commentaires que LireDonneesInode, c'est essentiellement le même algorithme
 	int i = decalage / TAILLE_BLOC;
 	int c = decalage % TAILLE_BLOC;
